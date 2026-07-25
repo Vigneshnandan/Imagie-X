@@ -359,23 +359,47 @@
   .field-row.single{ grid-template-columns:1fr; }
   @media (max-width:640px){ .field-row{ grid-template-columns:1fr; } }
 
-  .field{ display:flex; flex-direction:column; gap:8px; }
-  .field label{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-dim); }
+  .field{ position:relative; padding-top:6px; }
+  .field label{ position:absolute; left:15px; top:20px; font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-dim); transition:all .22s ease; pointer-events:none; transform-origin:left top; z-index:1; }
   .field label .req{ color:var(--danger); margin-left:3px; }
-  .field input, .field select, .field textarea{
+  .field-float input, .field-float textarea{
+    background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:8px;
+    padding:20px 36px 8px 15px; color:var(--ink); font-family:var(--font-body); font-size:14.5px;
+    transition:border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    outline:none; width:100%;
+  }
+  .field-float input:focus ~ label, .field-float textarea:focus ~ label,
+  .field-float input:not(:placeholder-shown) ~ label, .field-float textarea:not(:placeholder-shown) ~ label{
+    transform:translateY(-12px) scale(0.78); color:var(--cyan);
+  }
+  .field-float input::placeholder, .field-float textarea::placeholder{ color:transparent; }
+  .field-float input:focus::placeholder{ color:var(--ink-faint); transition:color .15s .15s; }
+  .field-float input:focus, .field-float textarea:focus{
+    border-color:var(--cyan); background:rgba(38,232,255,0.04); box-shadow:0 0 0 3px rgba(38,232,255,0.12), 0 0 24px rgba(38,232,255,0.15);
+  }
+  .field-float input.invalid{ border-color:var(--danger); box-shadow:0 0 0 3px rgba(255,93,122,0.12); }
+
+  .field-select{ display:flex; flex-direction:column; gap:8px; }
+  .field-select label{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-dim); }
+  .field-select label .req{ color:var(--danger); margin-left:3px; }
+  .field-select select{
     background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:8px;
     padding:13px 15px; color:var(--ink); font-family:var(--font-body); font-size:14.5px;
     transition:border-color .25s ease, box-shadow .25s ease, background .25s ease;
     outline:none; width:100%;
   }
-  .field input::placeholder, .field textarea::placeholder{ color:var(--ink-faint); }
-  .field input:focus, .field select:focus, .field textarea:focus{
+  .field-select select:focus{
     border-color:var(--cyan); background:rgba(38,232,255,0.04); box-shadow:0 0 0 3px rgba(38,232,255,0.12), 0 0 24px rgba(38,232,255,0.15);
   }
-  .field select{ appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239b95bd'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 16px center; }
-  .field .hint{ font-family:var(--font-mono); font-size:10px; color:var(--ink-faint); }
-  .field .err{ font-family:var(--font-mono); font-size:10.5px; color:var(--danger); min-height:13px; }
-  .field input.invalid, .field select.invalid{ border-color:var(--danger); box-shadow:0 0 0 3px rgba(255,93,122,0.12); }
+  .field-select select{ appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239b95bd'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 16px center; }
+  .field-select .hint{ font-family:var(--font-mono); font-size:10px; color:var(--ink-faint); }
+  .field-select .err{ font-family:var(--font-mono); font-size:10.5px; color:var(--danger); min-height:13px; }
+  .field-select select.invalid{ border-color:var(--danger); box-shadow:0 0 0 3px rgba(255,93,122,0.12); }
+
+  .field-check{ position:absolute; right:12px; top:18px; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transform:scale(0); transition:all .25s cubic-bezier(.34,1.56,.64,1); pointer-events:none; z-index:1; }
+  .field-check::after{ content:'✓'; font-size:11px; font-weight:700; color:var(--cyan); }
+  .field-valid .field-check{ opacity:1; transform:scale(1); }
+  .field-valid input{ border-color:rgba(38,232,255,0.3); }
 
   /* team members */
   #members-list{ display:flex; flex-direction:column; gap:16px; }
@@ -458,22 +482,43 @@
   .review-row .label{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-dim); flex:0 0 auto; }
   .review-row .value{ font-family:var(--font-body); font-size:13px; color:var(--ink); text-align:right; max-width:60%; word-break:break-word; }
 
-  /* success ticket */
+  /* ---------- success ticket ---------- */
   .ticket{
     display:none; max-width:560px; margin:0 auto; text-align:center;
-    border:1px solid var(--cyan); border-radius:18px; padding:50px 34px;
+    border:1px solid var(--cyan); border-radius:18px; padding:0; overflow:hidden;
     background:radial-gradient(circle at 50% 0%, rgba(38,232,255,0.1), transparent 60%), var(--panel-solid);
-    box-shadow:0 0 60px rgba(38,232,255,0.15);
+    box-shadow:0 0 60px rgba(38,232,255,0.15); position:relative;
   }
-  .ticket.show{ display:block; animation:memberIn .5s ease; }
-  .ticket .check{
+  .ticket.show{ display:block; }
+  .ticket-scanner{ position:absolute; inset:0; z-index:2; pointer-events:none; overflow:hidden; }
+  .ticket-scanner::after{
+    content:''; position:absolute; left:5%; right:5%; height:2px;
+    background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+    filter:drop-shadow(0 0 6px var(--cyan));
+    animation:ticketScan .55s ease-in-out forwards;
+    transform:translateY(-100%);
+  }
+  @keyframes ticketScan{ 0%{ transform:translateY(-100%); } 60%{ transform:translateY(100%); } 100%{ transform:translateY(100%); opacity:0; } }
+  .ticket-content{ padding:50px 34px; position:relative; z-index:1; }
+  .ticket-content > *{ opacity:0; transform:translateY(10px); animation:ticketFade .45s ease forwards; }
+  .ticket-content .ticket-check{ animation-delay:0.55s; }
+  .ticket-content h3{ animation-delay:0.7s; }
+  .ticket-content p{ animation-delay:0.85s; }
+  .ticket-content .ticket-id{ animation-delay:1.0s; }
+  .ticket-content .ticket-qr{ animation-delay:1.15s; }
+  .ticket-content .btn-ghost{ animation-delay:1.3s; }
+  @keyframes ticketFade{ to{ opacity:1; transform:translateY(0); } }
+  .ticket-check{
     width:66px; height:66px; margin:0 auto 22px; border-radius:50%; border:2px solid var(--cyan);
     display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--cyan);
     box-shadow:0 0 30px rgba(38,232,255,0.4);
   }
   .ticket h3{ font-family:var(--font-display); font-weight:700; font-size:28px; }
   .ticket p{ color:var(--ink-dim); margin-top:10px; font-size:14px; line-height:1.7; }
-  .ticket .id{ font-family:var(--font-mono); margin-top:24px; padding:14px; border:1px dashed var(--line); border-radius:10px; color:var(--lilac); letter-spacing:0.1em; }
+  .ticket-id{ font-family:var(--font-mono); margin-top:24px; padding:14px; border:1px dashed var(--line); border-radius:10px; color:var(--lilac); letter-spacing:0.1em; }
+  .ticket-qr{ margin-top:20px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .ticket-qr svg{ display:block; }
+  .ticket-qr span{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-faint); }
   .ticket .btn-ghost{ margin-top:26px; display:inline-block; }
 
   /* ---------- footer ---------- */
@@ -728,12 +773,13 @@
             <fieldset>
               <legend>Team Identity</legend>
               <div class="field-row">
-                <div class="field">
+                <div class="field field-float">
+                  <input type="text" id="teamName" placeholder=" " required>
                   <label for="teamName">Team Name<span class="req">*</span></label>
-                  <input type="text" id="teamName" placeholder="e.g. Neural Nomads" required>
+                  <span class="field-check"></span>
                   <div class="err" data-err-for="teamName"></div>
                 </div>
-                <div class="field">
+                <div class="field-select">
                   <label for="teamSize">Team Size<span class="req">*</span></label>
                   <select id="teamSize" required>
                     <option value="">Select size</option>
@@ -745,9 +791,10 @@
                 </div>
               </div>
               <div class="field-row single">
-                <div class="field">
+                <div class="field field-float">
+                  <input type="text" id="idea" placeholder=" ">
                   <label for="idea">One-Line Idea Pitch</label>
-                  <input type="text" id="idea" placeholder="What are you building? (optional)">
+                  <span class="field-check"></span>
                 </div>
               </div>
             </fieldset>
@@ -762,33 +809,38 @@
             <fieldset>
               <legend>Team Leader</legend>
               <div class="field-row">
-                <div class="field">
+                <div class="field field-float">
+                  <input type="text" id="leadName" placeholder=" " required>
                   <label for="leadName">Full Name<span class="req">*</span></label>
-                  <input type="text" id="leadName" placeholder="Full name" required>
+                  <span class="field-check"></span>
                   <div class="err" data-err-for="leadName"></div>
                 </div>
-                <div class="field">
+                <div class="field field-float">
+                  <input type="text" id="leadDept" placeholder=" " required>
                   <label for="leadDept">Department &amp; Year<span class="req">*</span></label>
-                  <input type="text" id="leadDept" placeholder="e.g. AI&DS, II Year" required>
+                  <span class="field-check"></span>
                   <div class="err" data-err-for="leadDept"></div>
                 </div>
               </div>
               <div class="field-row">
-                <div class="field">
+                <div class="field field-float">
+                  <input type="email" id="leadEmail" placeholder=" " required>
                   <label for="leadEmail">Email<span class="req">*</span></label>
-                  <input type="email" id="leadEmail" placeholder="you@example.com" required>
+                  <span class="field-check"></span>
                   <div class="err" data-err-for="leadEmail"></div>
                 </div>
-                <div class="field">
+                <div class="field field-float">
+                  <input type="tel" id="leadPhone" placeholder=" " required>
                   <label for="leadPhone">Phone Number<span class="req">*</span></label>
-                  <input type="tel" id="leadPhone" placeholder="10-digit mobile number" required>
+                  <span class="field-check"></span>
                   <div class="err" data-err-for="leadPhone"></div>
                 </div>
               </div>
               <div class="field-row single">
-                <div class="field">
+                <div class="field field-float">
+                  <input type="text" id="leadCollege" placeholder=" " required>
                   <label for="leadCollege">College Name<span class="req">*</span></label>
-                  <input type="text" id="leadCollege" placeholder="Your institution" required>
+                  <span class="field-check"></span>
                   <div class="err" data-err-for="leadCollege"></div>
                 </div>
               </div>
@@ -837,11 +889,29 @@
       </div>
 
       <div class="ticket" id="ticket-view">
-        <div class="check">✓</div>
-        <h3>Registration Confirmed</h3>
-        <p>Your team has been added to the IMAGINE X roster. A confirmation will be shared by your coordinator closer to the event. See you on 12 Aug 2026.</p>
-        <div class="id" id="ticket-id">TEAM-ID: —</div>
-        <a href="#" class="btn-ghost" id="reset-form">Register Another Team</a>
+        <div class="ticket-scanner"></div>
+        <div class="ticket-content">
+          <div class="ticket-check">✓</div>
+          <h3>Registration Confirmed</h3>
+          <p>Your team has been added to the IMAGINE X roster. A confirmation will be shared by your coordinator closer to the event. See you on 12 Aug 2026.</p>
+          <div class="ticket-id" id="ticket-id">TEAM-ID: —</div>
+          <div class="ticket-qr">
+            <svg viewBox="0 0 60 60" width="56" height="56">
+              <rect width="60" height="60" rx="4" fill="var(--panel-solid)" stroke="var(--line)" stroke-width="1"/>
+              <g fill="var(--ink-faint)" opacity="0.5">
+                <rect x="8" y="8" width="18" height="18" rx="2"/>
+                <rect x="34" y="8" width="18" height="18" rx="2"/>
+                <rect x="8" y="34" width="18" height="18" rx="2"/>
+                <rect x="34" y="34" width="8" height="8" rx="1"/>
+                <rect x="44" y="34" width="8" height="8" rx="1"/>
+                <rect x="34" y="44" width="8" height="8" rx="1"/>
+                <rect x="44" y="44" width="8" height="8" rx="1"/>
+              </g>
+            </svg>
+            <span>Event Pass</span>
+          </div>
+          <a href="#" class="btn-ghost" id="reset-form">Register Another Team</a>
+        </div>
       </div>
 
     </div>
@@ -984,13 +1054,15 @@ function addMember(){
       <button type="button" class="member-remove" aria-label="Remove member ${idx}">✕</button>
     </div>
     <div class="member-fields">
-      <div class="field">
+      <div class="field field-float">
+        <input type="text" class="mem-name" placeholder=" " required>
         <label>Full Name<span class="req">*</span></label>
-        <input type="text" class="mem-name" placeholder="Full name" required>
+        <span class="field-check"></span>
       </div>
-      <div class="field">
+      <div class="field field-float">
+        <input type="text" class="mem-dept" placeholder=" " required>
         <label>Department &amp; Year<span class="req">*</span></label>
-        <input type="text" class="mem-dept" placeholder="e.g. CSE, III Year" required>
+        <span class="field-check"></span>
       </div>
     </div>
   `;
@@ -1072,6 +1144,7 @@ function validateStep(n){
       if(!dept.value.trim()){ dept.classList.add('invalid'); ok = false; } else dept.classList.remove('invalid');
     });
   }
+  updateFieldCheckmarks();
   return ok;
 }
 
@@ -1119,8 +1192,26 @@ function showToast(msg){
 function setError(id, msg){
   const el = document.querySelector(`[data-err-for="${id}"]`);
   const input = document.getElementById(id);
+  const field = input?.closest('.field-float, .field-select');
   if(el) el.textContent = msg || '';
   if(input) input.classList.toggle('invalid', !!msg);
+  if(field) field.classList.toggle('field-valid', !msg && input?.value.trim());
+}
+
+document.getElementById('leadPhone').addEventListener('input', function(){
+  const digits = this.value.replace(/\D/g, '').slice(0, 10);
+  let f = '';
+  if(digits.length > 0) f += digits.slice(0,3);
+  if(digits.length > 3) f += ' ' + digits.slice(3,6);
+  if(digits.length > 6) f += ' ' + digits.slice(6,10);
+  this.value = f;
+});
+
+function updateFieldCheckmarks(){
+  document.querySelectorAll('.field-float input, .field-float textarea').forEach(el => {
+    const f = el.closest('.field-float');
+    if(f) f.classList.toggle('field-valid', !!el.value.trim() && !el.classList.contains('invalid'));
+  });
 }
 
 function validate(){
@@ -1170,8 +1261,10 @@ form.addEventListener('submit', async (e)=>{
   }
   if(!validate()){
     showToast('Please fix the highlighted fields.');
+    updateFieldCheckmarks();
     return;
   }
+  updateFieldCheckmarks();
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Transmitting…';
