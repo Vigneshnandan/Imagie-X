@@ -222,13 +222,14 @@
   }
   .scroll-frames::after{
     content:''; position:absolute; left:0; right:0; bottom:0; z-index:4;
-    height:20vh; pointer-events:none;
-    background:linear-gradient(to bottom, transparent, var(--void));
+    height:30vh; pointer-events:none;
+    background:linear-gradient(to bottom, transparent 10%, var(--void));
   }
   #frame-canvas{
     position:sticky; top:0;
     width:100vw; height:100vh;
     display:block; object-fit:cover;
+    will-change:opacity;
   }
   .scroll-overlays{
     position:absolute; inset:0; z-index:3; pointer-events:none;
@@ -242,6 +243,12 @@
     padding:10vw; text-align:center;
     opacity:0; transform:translateY(24px);
   }
+  .scroll-overlay::before{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at center 45%, rgba(7,7,13,0.55) 0%, transparent 75%);
+    pointer-events:none;
+  }
+  .scroll-overlay > *{ position:relative; z-index:1; }
   .scroll-overlay .label{
     font-family:var(--font-mono); font-size:11px; letter-spacing:0.35em;
     text-transform:uppercase; color:var(--cyan); margin-bottom:16px;
@@ -1074,12 +1081,28 @@ document.getElementById('reset-form').addEventListener('click', (e)=>{
   // ---------- preload (all, every 2nd, or just frame 0) ----------
   const frames = [];
   let loaded = 0;
+  const TOTAL_SOURCE_FRAMES = 100;
   const BASE = 'Video file/Robot_raises_hands,_AI_dashboard\u2026_202607251436_';
-  for(let i = 0; i < (skipAnim ? 1 : 100); i += FRAME_STEP){
+  const loadStart = performance.now();
+  let firstFrameTime = 0;
+  for(let i = 0; i < (skipAnim ? 1 : TOTAL_SOURCE_FRAMES); i += FRAME_STEP){
     const img = new Image();
     const idx = String(i).padStart(3, '0');
     img.src = encodeURI(BASE + idx + '.jpg');
-    img.onload = () => { loaded++; if(loaded === 1) drawFrame(0); };
+    img.onload = () => {
+      loaded++;
+      if(loaded === 1){
+        firstFrameTime = performance.now() - loadStart;
+        drawFrame(0);
+      }
+      if(loaded === frames.length){
+        const totalSize = FRAME_COUNT * 240; // ~240KB avg per frame
+        console.log('[IMAGINE X] Scroll-scrub stats:');
+        console.log('  Frames loaded: ' + FRAME_COUNT + ' (every ' + FRAME_STEP + ' of ' + TOTAL_SOURCE_FRAMES + ' source)');
+        console.log('  First frame painted: ' + firstFrameTime.toFixed(1) + 'ms');
+        console.log('  Estimated total size: ~' + Math.round(totalSize / 1024) + 'MB');
+      }
+    };
     frames.push(img);
   }
 
@@ -1150,9 +1173,11 @@ document.getElementById('reset-form').addEventListener('click', (e)=>{
 
   // ---------- canvas dissolve into Details ----------
   function updateCanvasOpacity(p){
+    const fadeStart = 0.9;
     let o = 1;
-    if(p > 0.7) o = 1 - Math.min(1, (p - 0.7) / 0.3);
+    if(p > fadeStart) o = 1 - Math.min(1, (p - fadeStart) / 0.1);
     fCanvas.style.opacity = o;
+    section.style.opacity = o;
   }
 
   // ---------- rAF loop ----------
